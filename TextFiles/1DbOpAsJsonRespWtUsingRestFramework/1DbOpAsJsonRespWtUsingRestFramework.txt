@@ -1,0 +1,125 @@
+Step 1: Create Project
+django-admin startproject FileUpload
+cd FileUpload
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Step 2: Create Application
+django-admin startapp GodOfWar
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Step 3: Runserver 
+python manage.py runserver 1803
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Step 4: Open Project in Pycharm
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Step 5: Create a "templates" Folder inside the main Project Folder.
+	in that,Create a one "MyApp" Folder and inside that myapp folder create a "HTML" File.
+	Create a "static" Folder inside the main Project Filder.
+	in that, Create a "css" and "images" Folder and in that css folder create a "file.css"
+	Do required Settings,App Confinguration @install apps
+Settings.py :-
+
+import os
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEMPLATE_DIR = os.path.join(BASE_DIR,'templates')
+STATIC_DIR = os.path.join(BASE_DIR,'static')
+
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    #User Create Application
+    'GodOfWar',
+]
+
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [TEMPLATE_DIR,],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [STATIC_DIR,]
+
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+MEDIA_URL = '/media/'
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Step 6: 
+Views.py:-
+
+from django.shortcuts import render
+from django.core.files.storage import FileSystemStorage
+
+def UploadFile(request):
+    context = {}
+    if request.method == 'POST':
+        Uploaded_File = request.FILES['MyFile']
+        print(Uploaded_File.name)
+        print(Uploaded_File.size)
+        fs = FileSystemStorage()
+        filename = fs.save(Uploaded_File.name,Uploaded_File)
+        context['url'] = fs.url(filename)
+    return render(request,'MyApp/fileupload.html',context)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Step 7:- 	Creae a templates folder,  inside create a home.html
+fileupload.html:-
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Upload Page</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container"><br>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="MyFile" class="btn btn-sm btn-warning"><br>
+        <button type="submit" class="btn btn-warning">Upload</button>
+    </form>
+    {% if url %}
+    <p class="mb2">File Uploaded at: <a href="{{ url }}">{{ url }}</a></p>
+    {% endif %}
+</div>
+</body>
+</html>
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Step 8:-
+urls.py:-
+
+from django.contrib import admin
+from django.urls import path
+from GodOfWar import views
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('fileupload/',views.UploadFile),
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Step 9: Run the Server 
+python manage.py runserver 1803
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Step 10: Open Web browser, send the request to server
+http://127.0.0.1:1803/fileupload/
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
